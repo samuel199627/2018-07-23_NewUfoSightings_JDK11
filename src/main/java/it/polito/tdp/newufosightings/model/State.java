@@ -9,6 +9,7 @@ public class State {
 	private int area;
 	private int population;
 	private String neighbors;
+	private double defcon;
 
 	public State(String id, String name, String capital, Double lat, Double lng, int area, int population,
 			String neighbors) {
@@ -21,7 +22,22 @@ public class State {
 		this.area = area;
 		this.population = population;
 		this.neighbors = neighbors;
+		defcon=5.0;
 	}
+	
+	
+
+	public double getDefcon() {
+		return defcon;
+	}
+
+
+
+	public void setDefcon(double defcon) {
+		this.defcon = defcon;
+	}
+
+
 
 	public String getId() {
 		return id;

@@ -56,7 +56,16 @@ public class FXMLController {
     		return;
     	}
     	
-    	txtResult.appendText(model.creaGrafo(formaSelezionata));
+    	int anno=0;
+    	try {
+    		anno=Integer.parseInt(txtAnno.getText());
+    	}
+    	catch(NumberFormatException e) {
+    		txtResult.appendText("PARAMETRO ANNO ERRATO!");
+    		return;
+    	}
+    	
+    	txtResult.appendText(model.creaGrafo(formaSelezionata, anno));
 
     }
 
@@ -85,6 +94,25 @@ public class FXMLController {
 
     @FXML
     void doSimula(ActionEvent event) {
+    	txtResult.clear();
+    	int giorni=0;
+    	int alpha=0;
+    	try {
+    		giorni=Integer.parseInt(txtT1.getText());
+    		alpha=Integer.parseInt(txtAlfa.getText());
+    		
+    	}
+    	catch(NumberFormatException e) {
+    		txtResult.appendText("PARAMETRI ERRATI!");
+    		return;
+    	}
+    	
+    	if(giorni<1&&giorni>365&&alpha<0&&alpha>100) {
+    		txtResult.appendText("PARAMETRI ERRATI!");
+    		return;
+    	}
+    	
+    	txtResult.appendText(model.simula(giorni,alpha));
 
     }
 

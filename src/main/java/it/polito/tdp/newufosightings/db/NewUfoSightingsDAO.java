@@ -14,9 +14,19 @@ import it.polito.tdp.newufosightings.model.Sighting;
 import it.polito.tdp.newufosightings.model.State;
 
 public class NewUfoSightingsDAO {
+	
+	/*
+	 	select *
+from sighting as s1
+where year(s1.datetime)=2000 and
+	s1.shape='changing'
+	 */
 
-	public List<Sighting> loadAllSightings() {
-		String sql = "SELECT * FROM sighting";
+	public List<Sighting> loadAllSightingsShapeYear(String forma, Map<String, State> stati, int anno) {
+		String sql = "select * " + 
+				"from sighting as s1 " + 
+				"where year(s1.datetime)=2000 and " + 
+				"	s1.shape='changing'";
 		List<Sighting> list = new ArrayList<>();
 		
 		try {
@@ -25,11 +35,15 @@ public class NewUfoSightingsDAO {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				list.add(new Sighting(res.getInt("id"), res.getTimestamp("datetime").toLocalDateTime(),
-						res.getString("city"), res.getString("state"), res.getString("country"), res.getString("shape"),
-						res.getInt("duration"), res.getString("duration_hm"), res.getString("comments"),
-						res.getDate("date_posted").toLocalDate(), res.getDouble("latitude"),
-						res.getDouble("longitude")));
+				if(stati.containsKey(res.getString("state"))) {
+					list.add(new Sighting(res.getInt("id"), res.getTimestamp("datetime").toLocalDateTime(),
+							res.getString("city"), stati.get(res.getString("state")), res.getString("country"), res.getString("shape"),
+							res.getInt("duration"), res.getString("duration_hm"), res.getString("comments"),
+							res.getDate("date_posted").toLocalDate(), res.getDouble("latitude"),
+							res.getDouble("longitude")));
+				}
+				
+				
 			}
 
 			conn.close();
@@ -112,18 +126,19 @@ where n.state1=s1.state and n.state2=s2.state and year(s1.datetime) = year(s2.da
 	and s1.shape='circle' and s2.shape='circle' and s2.state>s1.state
 group by s1.state, s2.state
 	 */
-	public List<Adiacenza> loadAdiancenze(String forma, Map<String,State> stati){
+	public List<Adiacenza> loadAdiancenze(String forma, Map<String,State> stati, int anno){
 		String sql = "select s1.state as stato1 ,s2.state as stato2, count(*) as num " + 
 				"from neighbor as n, sighting as s1, sighting as s2 " + 
-				"where n.state1=s1.state and n.state2=s2.state and year(s1.datetime) = year(s2.datetime) " + 
-				"	and s1.shape='circle' and s2.shape=? and s2.state>s1.state " + 
+				"where n.state1=s1.state and n.state2=s2.state and year(s1.datetime) = year(s2.datetime) and  year(s1.datetime)=? " + 
+				"	and s1.shape=s2.shape  and s2.shape=? and s2.state>s1.state " + 
 				"group by s1.state, s2.state ";
 		List<Adiacenza> result = new ArrayList<>();
 
 		try {
 			Connection conn = DBConnect.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);
-			st.setString(1, forma);
+			st.setInt(1, anno);
+			st.setString(2, forma);
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
@@ -146,6 +161,13 @@ group by s1.state, s2.state
 			throw new RuntimeException("Error Connection Database");
 		}
 	}
+	
+	/*
+	 select *
+from neighbor as n, sighting as s1
+where n.state1=s1.state and year(s1.datetime)=2000 and
+	s1.shape='changing'
+	 */
 	
 
 }

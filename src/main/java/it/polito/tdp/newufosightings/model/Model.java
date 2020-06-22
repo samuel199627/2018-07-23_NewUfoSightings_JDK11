@@ -16,6 +16,7 @@ public class Model {
 	NewUfoSightingsDAO dao;
 	SimpleWeightedGraph<State,DefaultWeightedEdge> grafo=null;
 	Map<String,State> stati;
+	List<Sighting> avvistamenti;
 	
 	public Model() {
 		dao= new NewUfoSightingsDAO();
@@ -26,7 +27,7 @@ public class Model {
 		return dao.loadShape(year);
 	}
 	
-	public String creaGrafo(String forma) {
+	public String creaGrafo(String forma, int anno) {
 		String ritornare="";
 		
 		grafo= new SimpleWeightedGraph<State,DefaultWeightedEdge>(DefaultWeightedEdge.class);
@@ -38,7 +39,9 @@ public class Model {
 		
 		//aggiungo gli archi
 		List<Adiacenza> adiacenze=new ArrayList<>();
-		adiacenze=dao.loadAdiancenze(forma, stati);
+		adiacenze=dao.loadAdiancenze(forma, stati, anno);
+		avvistamenti=new ArrayList<>();
+		avvistamenti=dao.loadAllSightingsShapeYear(forma, stati, anno);
 		
 		for(Adiacenza a: adiacenze) {
 			Graphs.addEdge(grafo, a.getS1(), a.getS2(), a.getPeso());
@@ -59,6 +62,25 @@ public class Model {
 		}
 		
 		
+		return ritornare;
+	}
+	
+	public String simula(int giorni, int alpha) {
+		String ritornare="";
+		
+		Simulatore sim=new Simulatore(this);
+		sim.init();
+		sim.setAlpha(alpha);
+		sim.setGiorni(giorni);
+		sim.run();
+		
+		
+		ritornare="SIMULAZIONE: \n\n";
+		
+		for(State s: grafo.vertexSet()) {
+			ritornare=ritornare+s.toString()+" DEFCON "+s.getDefcon()+"\n";
+		}
+
 		return ritornare;
 	}
 	
