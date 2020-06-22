@@ -33,7 +33,7 @@ public class FXMLController {
     private Button btnSelezionaAnno;
 
     @FXML
-    private ComboBox<?> cmbBoxForma;
+    private ComboBox<String> cmbBoxForma;
 
     @FXML
     private Button btnCreaGrafo;
@@ -49,11 +49,37 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	txtResult.clear();
+    	String formaSelezionata=cmbBoxForma.getValue();
+    	if(formaSelezionata==null) {
+    		txtResult.appendText("NON HAI SELEZIONATO NESSUNA FORMA!");
+    		return;
+    	}
+    	
+    	txtResult.appendText(model.creaGrafo(formaSelezionata));
 
     }
 
     @FXML
     void doSelezionaAnno(ActionEvent event) {
+    	
+    	txtResult.clear();
+    	int anno=0;
+    	try {
+    		anno=Integer.parseInt(txtAnno.getText());
+    	}
+    	catch(NumberFormatException e) {
+    		txtResult.appendText("PARAMETRO ANNO ERRATO!");
+    		return;
+    	}
+    	
+    	if(anno<1910||anno>2010) {
+    		txtResult.appendText("PARAMETRO ANNO ERRATO!");
+    		return;
+    	}
+    	
+    	cmbBoxForma.getItems().clear();
+    	cmbBoxForma.getItems().addAll(model.loadShape(anno));
 
     }
 
